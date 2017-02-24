@@ -1,0 +1,36 @@
+The files in this directory illustrate how to use the BUGS code from R
+using OpenBUGS and BRugs.
+
+The .bug files were derived from the corresponding files in the JAGS
+directory by using the R snippet given in the article (and provided in
+the file article.R in this directory) to unroll a for loop as
+discussed in the article.  The settings used were:
+
+  K <- 2 and q <- 2*K   for PolMonCompactEvenPred.bug
+  K <- 2 and q <- 2*K+1 for PolMonCompactOddPred.bug
+  K <- 2 and q <- 2*K+1 for PolMonRealLineOddPred.bug
+  K <- 2 and q <- 2*K   for PolMonSemiCompactEvenPred.bug
+  K <- 2 and q <- 2*K+1 for PolMonSemiCompactOddPred.bug
+
+Thus, the files, as they are at the moment, are suitable for fitting
+quartic and quintic monotone polynomials.  For polynomials of other
+degrees the files have to be appropriately modified.
+
+The files named Script*.R illustrate the use of this code.
+
+To fit an odd polynomial that is monotone over the real line use:
+   ScriptPolMonRealLinePred-BRugs.R
+   PolMonRealLineOddPred.bug
+
+To fit an even or odd polynomial that is monotone over a semi compact
+interval use:
+   ScriptPolMonSemiCompactPred-BRugs.R
+   PolMonSemiCompactEvenPred.bug
+   PolMonSemiCompactOddPred.bug
+
+To fit an even or odd polynomial that is monotone over a compact
+interval use:
+   ScriptPolMonCompactPred-BRugs.R
+   PolMonCompactEvenPred.bug
+   PolMonCompactOddPred.bug
+

@@ -1,0 +1,335 @@
+
+R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu/64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##
+> ## Load required libraries and set options to run stan in parallel
+> ##
+> library(MonoPoly)
+Loading required package: quadprog
+> library(fda)
+Loading required package: splines
+Loading required package: Matrix
+
+Attaching package: 'fda'
+
+The following object is masked from 'package:graphics':
+
+    matplot
+
+> library(rstan)
+Loading required package: ggplot2
+Loading required package: StanHeaders
+rstan (Version 2.14.1, packaged: 2016-12-28 14:55:41 UTC, GitRev: 5fa1e80eb817)
+For execution on a local, multicore CPU with excess RAM we recommend calling
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+> rstan_options(auto_write = FALSE)
+> options(mc.cores = parallel::detectCores())
+> 
+> ##
+> ## Data is the onechild data from package fda
+> ## Rescale data so that x and y are both in [0, 1]
+> ## Remember how y was scaled to undo the scaling in later plots
+> ##
+> x <- with(onechild, (day-min(day))/diff(range(day)))
+> y <- onechild$height
+> miny <- min(y)
+> ry <- diff(range(y))
+> y <- (y-miny)/ry
+> N <- length(x)   
+> 
+> ## 
+> ## Choose degree of polynomial to fit.
+> ## Here we want to have a polynomial monotone on [0, infinity)
+> ##
+> K <- 5
+> q <- 2*K          ## choose whether the polynomial is supposed to be even
+> ## q <- 2*K + 1   ## or odd by commenting out one line
+> 
+> alpha <- 1       ## polynomial should be increasing on [0, infinity)
+> a <- 0
+> 
+> ##
+> ## Grid of values on which we want to have predictions
+> ##
+> Nnew <- 101
+> xnew <- seq(from=min(x),to=max(x),length=Nnew)
+> 
+> ##
+> ## Put all the data to be passed to stan into a list
+> ## The polynomial should be monotone on [0, infinity), so operation_mode = 3
+> ##
+> data.in <- list(N = N, q = q, K = K,
++                 operation_mode = 3,
++                 y = y, x = x,
++                 a = 0, b = Inf,
++                 alpha = 1, Nnew = Nnew,
++                 xnew = xnew)
+> ##
+> ## Decide on number of iterations, this depends partly on the degree
+> ## of the polynomial.
+> ## See the 00README file
+> ##
+> iter <- 200000
+> 
+> ##
+> ## Fit the model with stan
+> ##
+> model.fit <- stan("MonPolyV0_0_4.stan", data = data.in, 
++                   iter = iter, seed = 170117)
+In file included from /opt/R/R-3.3.2/lib/R/library/BH/include/boost/config.hpp:39:0,
+                 from /opt/R/R-3.3.2/lib/R/library/BH/include/boost/math/tools/config.hpp:13,
+                 from /opt/R/R-3.3.2/lib/R/library/StanHeaders/include/stan/math/rev/core/var.hpp:7,
+                 from /opt/R/R-3.3.2/lib/R/library/StanHeaders/include/stan/math/rev/core/gevv_vvv_vari.hpp:5,
+                 from /opt/R/R-3.3.2/lib/R/library/StanHeaders/include/stan/math/rev/core.hpp:12,
+                 from /opt/R/R-3.3.2/lib/R/library/StanHeaders/include/stan/math/rev/mat.hpp:4,
+                 from /opt/R/R-3.3.2/lib/R/library/StanHeaders/include/stan/math.hpp:4,
+                 from /opt/R/R-3.3.2/lib/R/library/StanHeaders/include/src/stan/model/model_header.hpp:4,
+                 from file228c3a7d03a.cpp:8:
+/opt/R/R-3.3.2/lib/R/library/BH/include/boost/config/compiler/gcc.hpp:186:0: warning: "BOOST_NO_CXX11_RVALUE_REFERENCES" redefined
+ #  define BOOST_NO_CXX11_RVALUE_REFERENCES
+ ^
+<command-line>:0:0: note: this is the location of the previous definition
+
+SAMPLING FOR MODEL 'MonPolyV0_0_4' NOW (CHAIN 1).
+
+SAMPLING FOR MODEL 'MonPolyV0_0_4' NOW (CHAIN 2).
+
+SAMPLING FOR MODEL 'MonPolyV0_0_4' NOW (CHAIN 3).
+
+SAMPLING FOR MODEL 'MonPolyV0_0_4' NOW (CHAIN 4).
+
+Chain 1, Iteration:      1 / 200000 [  0%]  (Warmup)
+Chain 2, Iteration:      1 / 200000 [  0%]  (Warmup)
+Chain 3, Iteration:      1 / 200000 [  0%]  (Warmup)
+Chain 4, Iteration:      1 / 200000 [  0%]  (Warmup)
+Chain 1, Iteration:  20000 / 200000 [ 10%]  (Warmup)
+Chain 4, Iteration:  20000 / 200000 [ 10%]  (Warmup)
+Chain 3, Iteration:  20000 / 200000 [ 10%]  (Warmup)
+Chain 2, Iteration:  20000 / 200000 [ 10%]  (Warmup)
+Chain 1, Iteration:  40000 / 200000 [ 20%]  (Warmup)
+Chain 4, Iteration:  40000 / 200000 [ 20%]  (Warmup)
+Chain 3, Iteration:  40000 / 200000 [ 20%]  (Warmup)
+Chain 2, Iteration:  40000 / 200000 [ 20%]  (Warmup)
+Chain 1, Iteration:  60000 / 200000 [ 30%]  (Warmup)
+Chain 4, Iteration:  60000 / 200000 [ 30%]  (Warmup)
+Chain 2, Iteration:  60000 / 200000 [ 30%]  (Warmup)
+Chain 3, Iteration:  60000 / 200000 [ 30%]  (Warmup)
+Chain 1, Iteration:  80000 / 200000 [ 40%]  (Warmup)
+Chain 4, Iteration:  80000 / 200000 [ 40%]  (Warmup)
+Chain 2, Iteration:  80000 / 200000 [ 40%]  (Warmup)
+Chain 3, Iteration:  80000 / 200000 [ 40%]  (Warmup)
+Chain 1, Iteration: 100000 / 200000 [ 50%]  (Warmup)
+Chain 1, Iteration: 100001 / 200000 [ 50%]  (Sampling)
+Chain 2, Iteration: 100000 / 200000 [ 50%]  (Warmup)
+Chain 2, Iteration: 100001 / 200000 [ 50%]  (Sampling)
+Chain 4, Iteration: 100000 / 200000 [ 50%]  (Warmup)
+Chain 4, Iteration: 100001 / 200000 [ 50%]  (Sampling)
+Chain 3, Iteration: 100000 / 200000 [ 50%]  (Warmup)
+Chain 3, Iteration: 100001 / 200000 [ 50%]  (Sampling)
+Chain 1, Iteration: 120000 / 200000 [ 60%]  (Sampling)
+Chain 4, Iteration: 120000 / 200000 [ 60%]  (Sampling)
+Chain 2, Iteration: 120000 / 200000 [ 60%]  (Sampling)
+Chain 3, Iteration: 120000 / 200000 [ 60%]  (Sampling)
+Chain 1, Iteration: 140000 / 200000 [ 70%]  (Sampling)
+Chain 1, Iteration: 160000 / 200000 [ 80%]  (Sampling)
+Chain 4, Iteration: 140000 / 200000 [ 70%]  (Sampling)
+Chain 2, Iteration: 140000 / 200000 [ 70%]  (Sampling)
+Chain 3, Iteration: 140000 / 200000 [ 70%]  (Sampling)
+Chain 1, Iteration: 180000 / 200000 [ 90%]  (Sampling)
+Chain 4, Iteration: 160000 / 200000 [ 80%]  (Sampling)
+Chain 2, Iteration: 160000 / 200000 [ 80%]  (Sampling)
+Chain 3, Iteration: 160000 / 200000 [ 80%]  (Sampling)
+Chain 1, Iteration: 200000 / 200000 [100%]  (Sampling)
+ Elapsed Time: 2306.22 seconds (Warm-up)
+               1810.44 seconds (Sampling)
+               4116.66 seconds (Total)
+
+
+Chain 4, Iteration: 180000 / 200000 [ 90%]  (Sampling)
+Chain 2, Iteration: 180000 / 200000 [ 90%]  (Sampling)
+Chain 3, Iteration: 180000 / 200000 [ 90%]  (Sampling)
+Chain 4, Iteration: 200000 / 200000 [100%]  (Sampling)
+ Elapsed Time: 2385.98 seconds (Warm-up)
+               2627.32 seconds (Sampling)
+               5013.3 seconds (Total)
+
+
+Chain 2, Iteration: 200000 / 200000 [100%]  (Sampling)
+ Elapsed Time: 2380.19 seconds (Warm-up)
+               2677.21 seconds (Sampling)
+               5057.4 seconds (Total)
+
+The following numerical problems occured the indicated number of times on chain 2
+                                                                                 count
+Exception thrown at line 198: normal_log: Scale parameter is 0, but must be > 0!     1
+When a numerical problem occurs, the Hamiltonian proposal gets rejected.
+See http://mc-stan.org/misc/warnings.html#exception-hamiltonian-proposal-rejected
+If the number in the 'count' column is small, do not ask about this message on stan-users.
+
+Chain 3, Iteration: 200000 / 200000 [100%]  (Sampling)
+ Elapsed Time: 2399.85 seconds (Warm-up)
+               2703.69 seconds (Sampling)
+               5103.54 seconds (Total)
+
+The following numerical problems occured the indicated number of times on chain 3
+                                                                                 count
+Exception thrown at line 198: normal_log: Scale parameter is 0, but must be > 0!     2
+When a numerical problem occurs, the Hamiltonian proposal gets rejected.
+See http://mc-stan.org/misc/warnings.html#exception-hamiltonian-proposal-rejected
+If the number in the 'count' column is small, do not ask about this message on stan-users.
+Warning messages:
+1: There were 24564 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
+http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup 
+2: Examine the pairs() plot to diagnose sampling problems
+ 
+> 
+> 
+> ##
+> ## Incidental plots of this script go into another pdf file
+> ##
+> pdf(file=paste0("Scriptq=", q, ".pdf"), height=12, width=16)
+> 
+> ##
+> ## Plot the data, with y on the original scale
+> ##
+> with(onechild, plot(x, height))
+> 
+> ##
+> ## Extract the beta parameters from the fitted model and calculate the
+> ## posterior mean of the parameters, also adjust them to take the
+> ## scaling of y into account.
+> ##
+> beta_smp <- extract(model.fit, pars="beta_final")[[1]]
+> bhat <- colMeans(beta_smp)
+> bhat <- ry * bhat
+> bhat[1] <- bhat[1] + miny
+> 
+> ##
+> ## Add a line with the fitted regression line
+> ##
+> poly.est <- evalPol(x, bhat)
+> lines(x = x, y = poly.est, col = "black", lty = 2)
+> 
+> ##
+> ## Add credible intervals and prediction intervals using the generated
+> ## values for mupred and ypred
+> ##
+> mupred_smp <- extract(model.fit, "mupred")[[1]]
+> cred.intervals <- apply(mupred_smp, 2, function(x) quantile(x=x, c(0.025, 0.975)))
+> cred.intervals <- ry * cred.intervals + miny  ## undo the scaling of the y axis
+> lines(x = xnew, cred.intervals[1,], col = "black", lty = 3)
+> lines(x = xnew, cred.intervals[2,], col = "black", lty = 3)
+> 
+> ypred_smp <- extract(model.fit, "ypred")[[1]]
+> pred.intervals <- apply(ypred_smp, 2,  function(x) quantile(x=x, c(0.025, 0.975)))
+> pred.intervals <- ry * pred.intervals + miny  ## undo the scaling of the y axis
+> lines(x = xnew, y = pred.intervals[1,], col = "cadetblue", lty = 1)
+> lines(x = xnew, y = pred.intervals[2,], col = "cadetblue", lty = 1)
+> 
+> ##
+> ## The following commands are producing the figures used in the paper
+> ##
+> pdf(file=paste0("OneChildDeg", q, ".pdf"), width=6, height=6)
+> with(onechild, plot(x, height, type="n", ylim=c(123,131)))
+> polygon( c(xnew,rev(xnew)), c(pred.intervals[1,], rev(pred.intervals[2,])),
++         col="lightgrey", border=NA)
+> polygon( c(xnew,rev(xnew)), c(cred.intervals[1,], rev(cred.intervals[2,])),
++         col="darkgrey", border=NA)
+> with(onechild, points(x, height, ylim=c(120,133)))
+> lines(x = x, y = poly.est, col = "black")
+> dev.off()
+pdf 
+  2 
+> 
+> 
+> ##
+> ## Diagnostic plots using the bayesplot package 
+> ## Inspired by the vignettes of that package and refer to these
+> ## vignettes for details
+> ##
+> library(bayesplot)
+This is bayesplot version 1.1.0
+> posterior <- as.array(model.fit)
+> 
+> color_scheme_set("red")
+> mcmc_intervals(posterior, pars = "sd_y", regex_pars="beta_final*")
+> 
+> mcmc_areas(
++   posterior, 
++   pars = "sd_y",
++   regex_pars = "beta_final*",
++   prob = 0.8, # 80% intervals
++   prob_outer = 0.99, # 99%
++   point_est = "mean"
++ )
+> 
+> ##
+> ## Trace plots
+> ##
+> color_scheme_set("mix-blue-red")
+> mcmc_trace(posterior, regex_pars = "beta_final*")
+> mcmc_trace(posterior, pars=c("sd_y", "lp__"))
+> 
+> ##
+> ## ACF plots of chains
+> ##
+> mcmc_acf(posterior, regex_pars="beta_final*", pars="sd_y")
+> 
+> ##
+> ## R hat statistics to assess convergence of chain
+> ##
+> rhats <- rhat(model.fit)
+> ii <- grep("beta_final*", names(rhats))
+> ii <- c(ii, grep("sd_y", names(rhats)))
+> print(rhats[ii])
+ beta_final[1]  beta_final[2]  beta_final[3]  beta_final[4]  beta_final[5] 
+      1.007478       1.016733       1.014328       1.013079       1.012057 
+ beta_final[6]  beta_final[7]  beta_final[8]  beta_final[9] beta_final[10] 
+      1.010807       1.009445       1.008091       1.006815       1.005659 
+beta_final[11]           sd_y 
+      1.004649       1.001482 
+> mcmc_rhat(as.vector(rhats[ii]))
+> 
+> ##
+> ##  Effective sample sizes
+> ##
+> ratios <- neff_ratio(model.fit)
+> print(ratios[ii])
+ beta_final[1]  beta_final[2]  beta_final[3]  beta_final[4]  beta_final[5] 
+  0.0011771656   0.0009261901   0.0010343755   0.0010518738   0.0010875755 
+ beta_final[6]  beta_final[7]  beta_final[8]  beta_final[9] beta_final[10] 
+  0.0014228222   0.0014802347   0.0015591102   0.0016201340   0.0017026382 
+beta_final[11]           sd_y 
+  0.0018078004   0.0017394925 
+> mcmc_neff(ratios[ii]) + yaxis_text()
+> 
+> dev.off()
+null device 
+          1 
+> 
+> ##
+> ## If not run as script but interactively, then one might want to
+> ## explore the model fit using shinystan
+> ## To do so, uncomment the following two lines
+> ##
+> ## library(shinystan)
+> ## launch_shinystan(model.fit)
+> 
+> proc.time()
+     user    system   elapsed 
+14341.080     7.516  5266.270 

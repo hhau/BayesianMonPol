@@ -1,0 +1,134 @@
+
+R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu/64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##
+> ## Load the library and the problematic data
+> ##
+> library(rjags)
+Loading required package: coda
+Linked to JAGS 4.2.0
+Loaded modules: basemod,bugs
+> load("ProblemData.rda")
+> 
+> ##
+> ## We are fitting a quartic polynomial (K=2, q=4) to the data that is
+> ##  monotone increasing (alpha=1) on the interval [0,1] (a=0, b=1)
+> ##
+> N <- length(x)
+> K <- 2
+> q <- 2*K
+> alpha <- 1
+> a <- 0
+> b <- 1
+> 
+> ##
+> ## Create Figure 2 of the paper
+> ##
+> pdf("problem.pdf", height=8, width=12)
+> plot(x, y, ylab="", main=expression("p(x) = "*2 *x^4 + x^2))
+> dev.off()
+null device 
+          1 
+> 
+> ##
+> ## Create initial values for running two chains
+> ##
+> inits <- list()
+> 
+> 
+> ##
+> ## Initial values based on fitting a quadratic polynomial to the data
+> ##
+> fm <- lm(y~x+I(x^2))
+> b0 <- as.numeric(coef(fm)[1])
+> bn <- matrix(0, ncol=2, nrow=K+1)
+> bn[1,1] <- sqrt(abs(coef(fm)[2]+2*a*coef(fm)[3]))
+> bn[1,2] <- sqrt(2*abs(coef(fm)[3]))
+> tauy <- 1/mean(resid(fm)^2)
+> inits[[1]] <- list(b0=b0, tauy=tauy, bn=bn,
++                    .RNG.name="base::Mersenne-Twister",
++                    .RNG.seed=170117)
+> 
+> ##
+> ## Initial values based on fitting a constant polynomial to the data
+> ##
+> b0 <- mean(y)
+> bn <- matrix(0, ncol=2, nrow=K+1)
+> tauy <- 1/var(y)
+> inits[[2]] <- list(b0=b0, tauy=tauy, bn=bn, 
++                    .RNG.name="base::Mersenne-Twister",
++                    .RNG.seed=170117)
+> 
+> ##
+> ## Compile JAGS model
+> ##
+> m <- jags.model("PolMonCompactEven.bug",
++                 data=list(N=N, x=x, y=y, d=q+1, dm1=q,
++                           K=K, Kp1=K+1, alpha=alpha, a=a, b=b),
++                 inits=inits,
++                 n.chains=length(inits))
+Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 41
+   Unobserved stochastic nodes: 8
+   Total graph size: 496
+
+Initializing model
+
+> ##
+> ## burn-in
+> ##
+> update(m, n.iter=10000)
+> 
+> ##
+> ## set monitors on some parameters for the next iterations
+> ##
+> out <-  coda.samples(m, c("beta", "sigy"),
++                      n.iter=20000)
+> 
+> ##
+> ## create Figure 3 of the paper
+> ##
+> pdf("ProblemTrace.pdf", width=36, height=18)
+> par(mfrow=c(3,4))
+> plot(out, auto.layout=FALSE)
+> dev.off()
+null device 
+          1 
+> 
+> sessionInfo()
+R version 3.3.2 (2016-10-31)
+Platform: x86_64-pc-linux-gnu/64 (64-bit)
+Running under: Ubuntu 16.04.1 LTS
+
+locale:
+[1] C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] rjags_4-6   coda_0.19-1
+
+loaded via a namespace (and not attached):
+[1] grid_3.3.2      lattice_0.20-34
+> 
+> proc.time()
+   user  system elapsed 
+ 10.596   0.360  10.595 

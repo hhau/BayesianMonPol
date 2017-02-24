@@ -1,0 +1,48 @@
+model{
+
+  for(i in 1:N){
+    y[i] ~ dnorm(mu[i], tauy)
+
+    horner[i,1] <- beta[d]
+    for(k in 1:dm1){
+      horner[i,k+1] <- horner[i,k]*x[i] + beta[d-k]
+    }
+    mu[i] <- horner[i,d]
+  }
+
+  for(j in 1:dm1){
+    beta[j+1] <- alpha*gamma[j]/j
+  }
+  beta[1] <- b0
+
+  for(j in 2:dm1){
+    gamma[j] <- b*g1[j] - g1[j-1] + g2[j-1] - a*g2[j]
+  }        
+  gamma[1] <- b*g1[1] - a * g2[1]
+  
+  for(j in 1:d){
+    g1[j] <- inprod(bn[(max(0,j-Kp1)+1):(min(Kp1,j)),1],
+                    bnrev[(max(0,Kp1-j)+1):(min(d-j,Kp1-1)+1),1])
+    g2[j] <- inprod(bn[(max(0,j-Kp1)+1):(min(Kp1,j)),2],
+                    bnrev[(max(0,Kp1-j)+1):(min(d-j,Kp1-1)+1),2])
+  }
+
+  for(j in 1:Kp1){
+    for(k in 1:2){
+      bnrev[j,k] <- bn[Kp1-j+1,k]
+    }
+  }
+
+
+  bn[Kp1,1] ~ dbern(0)
+  bn[Kp1,2] ~ dbern(0)
+  b0 ~ dnorm(0, 0.001)
+  for(j in 1:K){
+    for(k in 1:2){
+      bn[j,k] ~ dnorm(0, 0.001)
+    }
+  }
+  tauy ~ dgamma(0.01, 0.01)
+  sigy <- 1/sqrt(tauy)
+  
+}

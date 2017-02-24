@@ -1,0 +1,14 @@
+Code to accompany the paper "Monotone Polynomials using BUGS and Stan"
+by Manderson et al.
+
+This folder  contains the *.stan file as described in the paper, as well as
+a script file that can be used to drive this Stan program from R using
+Stan and the R package rstan.
+
+The combination of code and comments in the script file should hopefully
+mean the process is fairly self explainitory. 
+
+For q less than 10, it was fine to use 50,000 iterations.  For larger
+values of q we ran the script with 200,000 iterations to obtain
+acceptable diagnostic plots.
+

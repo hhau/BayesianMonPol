@@ -1,0 +1,13 @@
+Running from a command line
+
+        R CMD BATCH --no-save StanFit.R
+	Or		Rscript StanFit.R
+
+can be used to create the four panel image shown in Figure 5 of the paper.
+The default arguments to generateCoveragePlots are the ones used to
+generate the figure. The image is outputted as a .pdf to the working
+directory. The multithreading aspect of the code was written to run
+under a unix environment, and does not work as written on Windows.
+This is easy to change if you need to (cease using the multicore package,
+and use the "cores = numberOfThreads" argument, where 'numberOfThreads' is 
+the number of threads you wish to run accross multiple CPU cores.

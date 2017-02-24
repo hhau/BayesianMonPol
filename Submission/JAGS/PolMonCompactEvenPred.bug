@@ -1,0 +1,58 @@
+model{
+  for(i in 1:N){
+    y[i] ~ dnorm(mu[i], tauy)
+
+    horner[i,1] <- beta[q+1]
+    for(k in 1:q){
+      horner[i,k+1] <- horner[i,k]*x[i] + beta[q+1-k]
+    }
+    mu[i] <- horner[i,q+1]
+  }
+
+  for(i in 1:Nnew){
+    hnew[i,1] <- beta[q+1]
+    for(k in 1:q){
+      hnew[i,k+1] <- hnew[i,k]*xnew[i] + beta[q+1-k]
+    }
+    mupred[i] <- hnew[i,q+1]
+    ypred[i] <- mupred[i] + eps[i]
+    eps[i] ~ dnorm(0, tauy)
+  }
+  
+  for(j in 1:q){
+    beta[j+1] <- alpha*gamma[j]/j
+  }
+  beta[1] <- beta0
+
+  for(j in 2:q){
+    gamma[j] <- b*g1[j] - g1[j-1] + g2[j-1] - a*g2[j]
+  }        
+  gamma[1] <- b*g1[1] - a * g2[1]
+  
+  for(j in 1:q){
+    g1[j] <- inprod(bn[(max(0,j-Kp1)+1):(min(Kp1,j)),1],
+                    bnrev[(max(0,Kp1-j)+1):(min(q+1-j,K)+1),1])
+    g2[j] <- inprod(bn[(max(0,j-Kp1)+1):(min(Kp1,j)),2],
+                    bnrev[(max(0,Kp1-j)+1):(min(q+1-j,K)+1),2])
+  }
+
+  for(j in 1:(K+1)){
+    for(k in 1:2){
+      bnrev[j,k] <- bn[Kp1-j+1,k]
+    }
+  }
+
+
+  bn[K+1,1] ~ dbern(0)
+  bn[K+1,2] ~ dbern(0)
+  beta0 ~ dnorm(0, 0.001)
+  for(j in 1:K){
+    for(k in 1:2){
+      bn[j,k] ~ dnorm(0, 0.001)
+    }
+  }
+  tauy ~ dgamma(0.01, 0.01)
+  sigy <- 1/sqrt(tauy)
+  
+  Kp1 <- K+1
+}

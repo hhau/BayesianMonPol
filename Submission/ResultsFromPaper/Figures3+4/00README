@@ -1,0 +1,13 @@
+Running from a command line
+
+        R CMD BATCH --no-save Script-rjags.R
+
+will create Figures 3 and 4 of the paper.
+
+The output of running this command on our system is saved in the file
+Script-rjags.Rout.orig.
+
+Note that the file "PolMonCompactEven.bug" was derived from the file
+"PolMonCompactEvenPred.bug" in the JAGS subdirectory by removing all
+code related to computing prediction at additional specified x values.
+

@@ -1,0 +1,23 @@
+The files in this directory illustrate how to use the BUGS code from R
+using JAGS and rjags.
+
+The files named Script*.R illustrate the use of this code.
+
+The code in the .bug files is discussed and explained in the article.
+
+To fit an odd polynomial that is monotone over the real line use:
+   ScriptPolMonRealLinePred-rjags.R
+   PolMonRealLineOddPred.bug
+
+To fit an even or odd polynomial that is monotone over a semi compact
+interval use:
+   ScriptPolMonSemiCompactPred-rjags.R
+   PolMonSemiCompactEvenPred.bug
+   PolMonSemiCompactOddPred.bug
+
+To fit an even or odd polynomial that is monotone over a compact
+interval use:
+   ScriptPolMonCompactPred-rjags.R
+   PolMonCompactEvenPred.bug
+   PolMonCompactOddPred.bug
+

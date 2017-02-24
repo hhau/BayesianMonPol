@@ -1,0 +1,15 @@
+Running from a command line
+
+        R CMD BATCH --no-save Script.R
+
+can be used to create the two panels shown in Figure 2 of the paper by
+setting the value of K either 3 or 4 and choosing q to be odd ("q <-
+2*K + 1").
+
+The output of running this command on our system for various values of
+K, and q either even or odd, are given in the subdirectory
+ResultsForVariousValuesOfq.
+
+For q less than 10, it was fine to use 50,000 iterations.  For larger
+values of q we ran the script with 200,000 iterations to obtain
+acceptable diagnostic plots.
