@@ -16,10 +16,10 @@ a <- 0
 b <- 1
 
 ##
-## Create Figure 2 of the paper
+## Create Figure 3 of the paper
 ##
-pdf("problem.pdf", height=8, width=12)
-plot(x, y, ylab="", main=expression("p(x) = "*2 *x^4 + x^2))
+pdf("problem.pdf", height=6, width=9)
+plot(x, y, ylab="", main=expression("p(x) = "*2 *x^4 + x^2), cex=1.5)
 dev.off()
 
 ##
@@ -71,11 +71,56 @@ out <-  coda.samples(m, c("beta", "sigy"),
                      n.iter=20000)
 
 ##
-## create Figure 3 of the paper
+## create Figure 4 of the paper
 ##
-pdf("ProblemTrace.pdf", width=36, height=18)
-par(mfrow=c(3,4))
-plot(out, auto.layout=FALSE)
+## Old Version before final revision
+##
+## pdf("ProblemTrace.pdf", width=36, height=18)
+## par(mfcol=c(3,4))
+## par(cex=2*par()$cex)
+## plot(out[,1:3,drop=FALSE], density=FALSE, auto.layout=FALSE, 
+##      col=c("darkgrey", "black"), lty=c("solid", "dashed"))
+## plot(out[,1:3,drop=FALSE], trace=FALSE, auto.layout=FALSE)
+## plot(out[,4:6,drop=FALSE], density=FALSE, auto.layout=FALSE, 
+##      col=c("darkgrey", "black"), lty=c("solid", "dashed"))
+## plot(out[,4:6,drop=FALSE], trace=FALSE, auto.layout=FALSE)
+## dev.off()
+
+pdf("ProblemTrace.pdf", width=36, height=72)
+
+gcol <- gray(c(0.5, 0))
+par(mfcol=c(6,2), mar=c(4.1, 2.1, 2.1, 0.1), cex=3)
+plot(out[,1,drop=FALSE], density=FALSE, auto.layout=FALSE, 
+     main = expression("Trace of " * beta[0]),
+     col=gcol, lty=c("solid", "dashed"))
+plot(out[,2,drop=FALSE], density=FALSE, auto.layout=FALSE, 
+     main = expression("Trace of " * beta[1]),
+     col=gcol, lty=c("solid", "dashed"))
+plot(out[,3,drop=FALSE], density=FALSE, auto.layout=FALSE, 
+     main = expression("Trace of " * beta[2]),
+     col=gcol, lty=c("solid", "dashed"))
+plot(out[,4,drop=FALSE], density=FALSE, auto.layout=FALSE, 
+     main = expression("Trace of " * beta[3]),
+     col=gcol, lty=c("solid", "dashed"))
+plot(out[,5,drop=FALSE], density=FALSE, auto.layout=FALSE, 
+     main = expression("Trace of " * beta[4]),
+     col=gcol, lty=c("solid", "dashed"))
+plot(out[,6,drop=FALSE], density=FALSE, auto.layout=FALSE, 
+     main = expression("Trace of " * sigma[epsilon]),
+     col=gcol, lty=c("solid", "dashed"))
+plot(out[,1,drop=FALSE], trace=FALSE, auto.layout=FALSE, 
+     main = expression("Density of " * beta[0]))
+plot(out[,2,drop=FALSE], trace=FALSE, auto.layout=FALSE, 
+     main = expression("Density of " * beta[1]))
+plot(out[,3,drop=FALSE], trace=FALSE, auto.layout=FALSE, 
+     main = expression("Density of " * beta[2]))
+plot(out[,4,drop=FALSE], trace=FALSE, auto.layout=FALSE, 
+     main = expression("Density of " * beta[3]))
+plot(out[,5,drop=FALSE], trace=FALSE, auto.layout=FALSE, 
+     main = expression("Density of " * beta[4]))
+plot(out[,6,drop=FALSE], trace=FALSE, auto.layout=FALSE, 
+     main = expression("Density of " * sigma[epsilon]))
+
 dev.off()
 
 sessionInfo()

@@ -36,38 +36,38 @@ functions {
 }
 
 data { 
-  # number of data points
+  // number of data points
   int <lower=1> N;
 
-  # degree of polynomial we want to fit
+  // degree of polynomial we want to fit
   int <lower=1> q;
 
-  # degree of sub polynomials, q = 2K or q = 2K + 1
+  // degree of sub polynomials, q = 2K or q = 2K + 1
   int <lower=0> K;
 
-  # mode of operation, derived in the R code
-  # 1 == whole real line
-  # 2 == (-inf, b]
-  # 3 == [a, Inf)
-  # 4 == [a, b]
+  // mode of operation, derived in the R code
+  // 1 == whole real line
+  // 2 == (-inf, b]
+  // 3 == [a, Inf)
+  // 4 == [a, b]
   int <lower = 1, upper = 4> operation_mode;
 
-  # y values
+  // y values
   vector[N] y;
 
-  # x values
+  // x values
   vector[N] x;
 
-  # lower bound (could be -Infty / negative_infinity() )
+  // lower bound (could be -Infty / negative_infinity() )
   real a;
 
-  # upper bound (could be Infty / positive_infinity() )
+  // upper bound (could be Infty / positive_infinity() )
   real <lower=a> b;
 
-  # alpha (polynomial is increasing or decreasing)
+  // alpha (polynomial is increasing or decreasing)
   int <lower=-1, upper=1> alpha;
 
-  # number of new data points at which to predict
+  // number of new data points at which to predict
   int <lower=1> Nnew;
   vector[Nnew] xnew;
 } 
@@ -115,11 +115,11 @@ transformed data {
   if( gamma_2_temp_length != 0) 
     gamma_2_temp_length =  gamma_2_temp_length + gamma_2_length;
 
-  # This should be the vector (-a, 1) for (a - x) convolution
+  // This should be the vector (-a, 1) for (a - x) convolution
   lower_bound_vector[1] = -a;
   lower_bound_vector[2] = 1;
 
-  # This should be the vector (b, -1) for (b - x) convolution
+  // This should be the vector (b, -1) for (b - x) convolution
   upper_bound_vector[1] = b;
   upper_bound_vector[2] = -1;
 } 
@@ -147,13 +147,13 @@ transformed parameters {
   gamma_2_temp = rep_vector(0, gamma_2_temp_length);
   gamma = rep_vector(0, q);
 
-  # self convolute betas to get gammas
+  // self convolute betas to get gammas
   gamma_1 = convolve(beta_1, beta_1);
   gamma_2 = convolve(beta_2, beta_2);
 
-  # convolute with lower and upper bounds.
-  # combine together to get gamma
-  # do this at the same time to avoid extra control flow steps
+  // convolute with lower and upper bounds.
+  // combine together to get gamma
+  // do this at the same time to avoid extra control flow steps
   if (operation_mode == 1) {
     gamma = gamma_1 + gamma_2;
   } else if (operation_mode == 2) {
@@ -190,7 +190,7 @@ transformed parameters {
     beta_final[i+1] = alpha * gamma[i] / i;
   }
 
-  # use horner() to evaluate and get mu
+  // use horner() to evaluate and get mu
   mu = horner(x, beta_final);
 } 
 

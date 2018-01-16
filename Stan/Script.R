@@ -84,7 +84,7 @@ if (lower.bound == -Inf) {
   }
 }
 
-if ( (poly.degree %% 2 == 0) & (op.mode == 1) ) {
+if ( (q %% 2 == 0) & (op.mode == 1) ) {
   stop("Fitting a monotonic polynomial to the whole real line requires q to be odd")
 }
 
